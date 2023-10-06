@@ -8,7 +8,10 @@ find_package(SDL2 REQUIRED CONFIG PATHS "." NO_DEFAULT_PATH)
 find_package(SDL2_image REQUIRED CONFIG PATHS "." NO_DEFAULT_PATH)
 find_package(SDL2_ttf REQUIRED CONFIG PATHS "." NO_DEFAULT_PATH)
 
-add_executable(minesweeper2 MACOSX_BUNDLE "src/main.c")
+add_executable(minesweeper2 MACOSX_BUNDLE
+    "src/main.c"
+    "src/tile.c"
+)
 
 set_target_properties(minesweeper2 PROPERTIES
     BUNDLE ON
