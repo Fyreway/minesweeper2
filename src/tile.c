@@ -1,39 +1,37 @@
 #include "tile.h"
 
-bool tile_is_flagged(Tile tile) {
-    return (tile & 0b00010000) >> 4;
+struct Tile create_mine() {
+    return (struct Tile){.flagged = false,
+                         .is_mine = true,
+                         .mined = false,
+                         .value = 0};
 }
 
-bool tile_is_mined(Tile tile) {
-    return (tile & 0b00100000) >> (4 + 1);
+struct Tile create_value(uint8_t value) {
+    return (struct Tile){.flagged = false,
+                         .is_mine = false,
+                         .mined = false,
+                         .value = value & 0b00001111};
 }
 
-bool tile_is_mine(Tile tile) {
-    return (tile & 0b01000000) >> (4 + 2);
-}
-
-uint8_t tile_get_value(Tile tile) {
-    return tile & 0b00001111;
-}
-
-MineStatus tile_mine(Tile tile) {
-    if (tile_is_mined(tile))
+MineStatus tile_mine(struct Tile tile) {
+    if (tile.mined)
         return M_MINED;
-    else if (tile_is_flagged(tile))
+    else if (tile.flagged)
         return M_FLAGGED;
-    else if (tile_is_mine(tile))
+    else if (tile.is_mine)
         return M_IS_MINE;
-    else if (!tile_get_value(tile))
+    else if (!tile.value)
         return M_ZERO;
     return M_OK;
 }
 
-FlagStatus tile_flag(Tile tile, uint8_t flags) {
-    if (tile_is_mined(tile))
+FlagStatus tile_flag(struct Tile tile, uint8_t flags) {
+    if (tile.mined)
         return F_MINED;
-    else if (tile_is_flagged(tile))
+    else if (tile.flagged)
         return F_UNFLAG;
-    else if (flags == 0)
+    else if (!flags)
         return F_NO_FLAGS;
     return F_FLAG;
 }
