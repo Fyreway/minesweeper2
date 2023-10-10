@@ -114,21 +114,48 @@ void map_mine_(struct Map *map,
                uint8_t x,
                uint8_t y,
                uint32_t c,
+               struct Pair *completed);
+
+#define flagged_f(t) \
+    if (t.flagged) flags++
+
+void automine(struct Map *map,
+              uint8_t x,
+              uint8_t y,
+              uint32_t c,
+              struct Pair *completed) {
+    uint8_t flags = 0;
+    adjacent(map->map, x, y, map->cols, map->rows, flagged_f);
+    if (flags == map->map[y][x].value) {
+        completed[c] = (struct Pair){x, y};
+        adjacent_xy(map->map, x, y, map->cols, map->rows, mine_adj);
+    }
+}
+
+void map_mine_(struct Map *map,
+               uint8_t x,
+               uint8_t y,
+               uint32_t c,
                struct Pair *completed) {
     if (x >= map->cols || y >= map->rows) return;
+    for (uint32_t i = 0; i < c; i++)
+        if (completed[i].x == x && completed[i].y == y) return;
     switch (tile_mine(map->map[y][x])) {
     case M_IS_MINE:
         map->map[y][x].mined = true;
         map->status = MS_LOSE;
         map->reveal = true;
         break;
-    case M_MINED:  // TODO: autoclick remainder
+    case M_MINED:
+        completed[c] = (struct Pair){x, y};
+        automine(map, x, y, c + 1, completed);
         break;
     case M_OK: map->map[y][x].mined = true; break;
-    case M_ZERO:  // TODO: autoclick zero
+    case M_ZERO:
         map->map[y][x].mined = true;
         completed[c] = (struct Pair){x, y};
-        adjacent_xy(map->map, x, y, map->cols, map->rows, mine_adj) break;
+        adjacent_xy(map->map, x, y, map->cols, map->rows, mine_adj);
+        break;
     default: break;
     }
 }
