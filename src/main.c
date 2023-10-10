@@ -10,24 +10,11 @@ int main() {
     init(&state);
 
     bool running = true;
-    bool flag = false;
     uint8_t x, y;
-    enum EventStatus events[8] = {0};
+    enum EventStatus events[8] = {};
 
     while (running) {
-        for (uint8_t i = 0; i < handle_events(flag, events, &x, &y); i++) {
-            switch (events[i]) {
-            case E_NONE: break;
-            case E_QUIT: running = false; break;
-            case E_FLAG_OFF: flag = false; break;
-            case E_FLAG_ON: flag = true; break;
-            case E_FLAG:  // TODO: flag
-                break;
-            case E_MINE:  // TODO: mine
-                break;
-            }
-        }
-
+        handle_events(&running, &map);
         render(state, map);
     }
 

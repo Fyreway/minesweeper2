@@ -19,17 +19,7 @@ void cleanup(struct SDLState state);
 
 void f_sdl_err(const char *msg);
 
-enum EventStatus : uint8_t {
-    E_NONE,
-    E_QUIT,
-    E_FLAG_ON,
-    E_FLAG_OFF,
-    E_FLAG,
-    E_MINE
-};
+enum EventStatus : uint8_t { E_NONE, E_QUIT, E_FLAG, E_MINE };
 
-uint8_t handle_events(bool flag,
-                      enum EventStatus events[8],
-                      uint8_t *x,
-                      uint8_t *y);
+void handle_events(bool *running, struct Map *map);
 void render(struct SDLState state, struct Map map);

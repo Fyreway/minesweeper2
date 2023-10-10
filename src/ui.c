@@ -49,39 +49,35 @@ void f_sdl_err(const char *msg) {
     exit(1);
 }
 
-uint8_t handle_events(bool flag,
-                      enum EventStatus events[8],
-                      uint8_t *x,
-                      uint8_t *y) {
-    uint8_t i = 0;
+void handle_events(bool *running, struct Map *map) {
+    uint8_t x, y;
     SDL_Event e;
+    bool flag = (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT]);
     while (SDL_PollEvent(&e)) {
         switch (e.type) {
-        case SDL_QUIT: events[i] = E_QUIT; break;
+        case SDL_QUIT: *running = 0; break;
         case SDL_KEYDOWN:
             switch (e.key.keysym.scancode) {
-            case SDL_SCANCODE_ESCAPE: events[i] = E_QUIT; break;
-            case SDL_SCANCODE_LSHIFT: events[i] = E_FLAG_ON; break;
+            case SDL_SCANCODE_ESCAPE: *running = 0; break;
             default: break;
             }
             break;
-        case SDL_KEYUP:
-            if (e.key.keysym.scancode == SDL_SCANCODE_LSHIFT)
-                events[i] = E_FLAG_OFF;
-            break;
         case SDL_MOUSEBUTTONDOWN:
+            x = e.button.x / TILE_SIZE;
+            y = e.button.y / TILE_SIZE;
             if (e.button.button == SDL_BUTTON_RIGHT
                 || (e.button.button == SDL_BUTTON_LEFT && flag))
-                events[i] = E_FLAG;
-            else if (e.button.button == SDL_BUTTON_LEFT)
-                events[i] = E_MINE;
-            *x = e.button.x / TILE_SIZE;
-            *y = e.button.y / TILE_SIZE;
+                map_flag(map, x, y);
+            else if (e.button.button == SDL_BUTTON_LEFT) {
+                if (map->first_move) {
+                    generate_map(map, x, y);
+                    map->first_move = false;
+                }
+                map_mine(map, x, y);
+            }
         default: break;
         }
-        if (++i == 8) return i;
     }
-    return i;
 }
 
 void find_tex_pos(struct Map map,
@@ -90,11 +86,11 @@ void find_tex_pos(struct Map map,
                   uint16_t *x,
                   uint16_t *y) {
     if (map.map[i][j].flagged) {
-        if (map.map[i][j].is_mine && map.reveal) {
-            *x = 16;
+        if (!map.map[i][j].is_mine && map.reveal) {
+            *x = 48;
             *y = 16;
         } else {
-            *x = 48;
+            *x = 16;
             *y = 16;
         }
     } else if (map.map[i][j].is_mine && (map.reveal || map.map[i][j].mined)) {
