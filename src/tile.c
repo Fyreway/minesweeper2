@@ -1,6 +1,6 @@
 #include "tile.h"
 
-struct Tile create_mine() {
+struct Tile create_mine(void) {
     return (struct Tile){.flagged = false,
                          .is_mine = true,
                          .mined = false,

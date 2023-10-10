@@ -8,10 +8,16 @@ find_package(SDL2 REQUIRED CONFIG PATHS "." NO_DEFAULT_PATH)
 find_package(SDL2_image REQUIRED CONFIG PATHS "." NO_DEFAULT_PATH)
 find_package(SDL2_ttf REQUIRED CONFIG PATHS "." NO_DEFAULT_PATH)
 
+file(COPY resources DESTINATION minesweeper2.app/Contents/MacOS)
+
 add_executable(minesweeper2 MACOSX_BUNDLE
     "src/main.c"
     "src/tile.c"
+    "src/map.c"
+    "src/ui.c"
 )
+
+set(APPLE_GUI_BUNDLE_NAME Minesweeper2)
 
 set_target_properties(minesweeper2 PROPERTIES
     BUNDLE ON
@@ -22,4 +28,4 @@ set_target_properties(minesweeper2 PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake/AppleInfo.plist"
 )
 
-target_link_libraries(minesweeper2 PRIVATE SDL2::SDL2)
+target_link_libraries(minesweeper2 PRIVATE SDL2::SDL2 SDL2_image::SDL2_image)
