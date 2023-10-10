@@ -57,7 +57,7 @@ void generate_mines(struct Map *map, uint8_t x, uint8_t y) {
         if ((y) > 0) f((o)[(y)-1][(x) + 1]);        \
         if ((y) < (my)-1) f((o)[(y) + 1][(x) + 1]); \
     }
-#define adjacent_xy(o, x, y, mx, my, f)    \
+#define adjacent_xy(x, y, mx, my, f)       \
     if ((y) > 0) f(y - 1, x);              \
     if ((y) < (my)-1) f(y + 1, x);         \
     if ((x) > 0) {                         \
@@ -70,6 +70,26 @@ void generate_mines(struct Map *map, uint8_t x, uint8_t y) {
         if ((y) > 0) f(y - 1, x + 1);      \
         if ((y) < (my)-1) f(y + 1, x + 1); \
     }
+
+#define adj_unchecked(o, x, y, f) \
+    f((o)[y - 1][x - 1]);         \
+    f((o)[y][x - 1]);             \
+    f((o)[y + 1][x - 1]);         \
+    f((o)[y - 1][x]);             \
+    f((o)[y + 1][x]);             \
+    f((o)[y - 1][x + 1]);         \
+    f((o)[y][x + 1]);             \
+    f((o)[y + 1][x + 1]);
+
+#define adj_unchecked_xy(x, y, f) \
+    f(y - 1, x - 1);              \
+    f(y, x - 1);                  \
+    f(y + 1, x - 1);              \
+    f(y - 1, x);                  \
+    f(y + 1, x);                  \
+    f(y - 1, x + 1);              \
+    f(y, x + 1);                  \
+    f(y + 1, x + 1);
 
 #define is_mine_f(t) \
     if (t.is_mine) mines++
@@ -108,16 +128,19 @@ void map_flag(struct Map *map, uint8_t x, uint8_t y) {
     }
 }
 
-#define mine_adj(y, x) map_mine_(map, x, y, c + 1, completed)
+#define mine_adj(y, x) map_mine_(map, x, y, c + 1, completed, false)
 
 void map_mine_(struct Map *map,
                uint8_t x,
                uint8_t y,
                uint32_t c,
-               struct Pair *completed);
+               struct Pair *completed,
+               bool enable_automine);
 
 #define flagged_f(t) \
     if (t.flagged) flags++
+
+#define mine_adj_(y, x) map_mine(map, x, y)
 
 void automine(struct Map *map,
               uint8_t x,
@@ -127,16 +150,18 @@ void automine(struct Map *map,
     uint8_t flags = 0;
     adjacent(map->map, x, y, map->cols, map->rows, flagged_f);
     if (flags == map->map[y][x].value) {
-        completed[c] = (struct Pair){x, y};
-        adjacent_xy(map->map, x, y, map->cols, map->rows, mine_adj);
+        adj_unchecked_xy(x, y, mine_adj);
     }
 }
+
+#undef flagged_f
 
 void map_mine_(struct Map *map,
                uint8_t x,
                uint8_t y,
                uint32_t c,
-               struct Pair *completed) {
+               struct Pair *completed,
+               bool enable_automine) {
     if (x >= map->cols || y >= map->rows) return;
     for (uint32_t i = 0; i < c; i++)
         if (completed[i].x == x && completed[i].y == y) return;
@@ -148,13 +173,13 @@ void map_mine_(struct Map *map,
         break;
     case M_MINED:
         completed[c] = (struct Pair){x, y};
-        automine(map, x, y, c + 1, completed);
+        if (enable_automine) automine(map, x, y, c + 1, completed);
         break;
     case M_OK: map->map[y][x].mined = true; break;
     case M_ZERO:
         map->map[y][x].mined = true;
         completed[c] = (struct Pair){x, y};
-        adjacent_xy(map->map, x, y, map->cols, map->rows, mine_adj);
+        adj_unchecked_xy(x, y, mine_adj);
         break;
     default: break;
     }
@@ -165,6 +190,6 @@ void map_mine_(struct Map *map,
 void map_mine(struct Map *map, uint8_t x, uint8_t y) {
     struct Pair *completed =
         calloc(map->cols * map->rows - map->mines, sizeof(struct Pair));
-    map_mine_(map, x, y, 0, completed);
+    map_mine_(map, x, y, 0, completed, true);
     free(completed);
 }
