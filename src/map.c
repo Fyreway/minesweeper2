@@ -140,8 +140,6 @@ void map_mine_(struct Map *map,
 #define flagged_f(t) \
     if (t.flagged) flags++
 
-#define mine_adj_(y, x) map_mine(map, x, y)
-
 void automine(struct Map *map,
               uint8_t x,
               uint8_t y,
@@ -183,6 +181,14 @@ void map_mine_(struct Map *map,
         break;
     default: break;
     }
+
+    for (uint8_t i = 0; i < map->rows; i++) {
+        for (uint8_t j = 0; j < map->cols; j++) {
+            if (!(map->map[i][j].is_mine || map->map[i][j].mined)) return;
+        }
+    }
+    map->status = MS_WIN;
+    map->reveal = true;
 }
 
 #undef mine_adj

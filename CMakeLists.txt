@@ -8,7 +8,7 @@ find_package(SDL2 REQUIRED CONFIG PATHS "." NO_DEFAULT_PATH)
 find_package(SDL2_image REQUIRED CONFIG PATHS "." NO_DEFAULT_PATH)
 find_package(SDL2_ttf REQUIRED CONFIG PATHS "." NO_DEFAULT_PATH)
 
-file(COPY resources DESTINATION minesweeper2.app/Contents/MacOS)
+file(COPY Resources DESTINATION minesweeper2.app/Contents)
 
 add_executable(minesweeper2 MACOSX_BUNDLE
     "src/main.c"

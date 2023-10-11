@@ -30,9 +30,8 @@ void init(struct SDLState *state) {
                         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC),
                     "Failed to initialize SDL_Renderer");
     try_sdl_nonnull(
-        state->spritesheet =
-            IMG_LoadTexture(state->rend, "resources/spritesheet.png"),
-        "Failed to load \"resources/spritesheet.png\"");
+        state->spritesheet = IMG_LoadTexture(state->rend, "spritesheet.png"),
+        "Failed to load \"spritesheet.png\"");
 }
 
 void cleanup(struct SDLState state) {
@@ -59,22 +58,31 @@ void handle_events(bool *running, struct Map *map) {
         case SDL_KEYDOWN:
             switch (e.key.keysym.scancode) {
             case SDL_SCANCODE_ESCAPE: *running = 0; break;
+            case SDL_SCANCODE_X:
+                for (uint8_t i = 0; i < map->rows; i++)
+                    for (uint8_t j = 0; j < map->cols; j++)
+                        if (!(map->map[i][j].mined || map->map[i][j].is_mine))
+                            map->map[i][j].mined = true;
+                break;
             default: break;
             }
             break;
         case SDL_MOUSEBUTTONDOWN:
-            x = e.button.x / TILE_SIZE;
-            y = e.button.y / TILE_SIZE;
-            if (e.button.button == SDL_BUTTON_RIGHT
-                || (e.button.button == SDL_BUTTON_LEFT && flag))
-                map_flag(map, x, y);
-            else if (e.button.button == SDL_BUTTON_LEFT) {
-                if (map->first_move) {
-                    generate_map(map, x, y);
-                    map->first_move = false;
+            if (map->status == MS_PLAY) {
+                x = e.button.x / TILE_SIZE;
+                y = e.button.y / TILE_SIZE;
+                if (e.button.button == SDL_BUTTON_RIGHT
+                    || (e.button.button == SDL_BUTTON_LEFT && flag))
+                    map_flag(map, x, y);
+                else if (e.button.button == SDL_BUTTON_LEFT) {
+                    if (map->first_move) {
+                        generate_map(map, x, y);
+                        map->first_move = false;
+                    }
+                    map_mine(map, x, y);
                 }
-                map_mine(map, x, y);
             }
+            break;
         default: break;
         }
     }
@@ -85,7 +93,15 @@ void find_tex_pos(struct Map map,
                   uint8_t j,
                   uint16_t *x,
                   uint16_t *y) {
-    if (map.map[i][j].flagged) {
+    if (map.status == MS_WIN) {
+        if (map.map[i][j].is_mine) {
+            *x = 64;
+            *y = 16;
+        } else {
+            *x = 0;
+            *y = 16;
+        }
+    } else if (map.map[i][j].flagged) {
         if (!map.map[i][j].is_mine && map.reveal) {
             *x = 48;
             *y = 16;
@@ -93,7 +109,7 @@ void find_tex_pos(struct Map map,
             *x = 16;
             *y = 16;
         }
-    } else if (map.map[i][j].is_mine && (map.reveal || map.map[i][j].mined)) {
+    } else if (map.map[i][j].is_mine && map.reveal) {
         *x = 32;
         *y = 16;
     } else if (map.map[i][j].mined) {
