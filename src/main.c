@@ -5,7 +5,7 @@
 
 int main() {
     srand(time(NULL));
-    struct SDLState state;
+    struct State state;
     struct Map map = create_map(30, 16, 99);
     init(&state);
 
@@ -14,7 +14,8 @@ int main() {
     enum EventStatus events[8] = {};
 
     while (running) {
-        handle_events(&running, &map);
+        update_button_pos(&state.play_again_btn, state.win, -1, -1);
+        handle_events(state, &running, &map);
         render(state, map);
     }
 

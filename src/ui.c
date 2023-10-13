@@ -1,20 +1,28 @@
 #include "ui.h"
 
-#include <stdio.h>
-
 #include <SDL2_image/SDL_image.h>
 
-#define try_sdl(cond, msg) \
-    if (cond) f_sdl_err(msg)
+#include "text.h"
+#include "util.h"
 
-#define try_sdl_nonnull(var, msg) try_sdl((var) == NULL, msg)
+void load_fonts(struct State *state) {
+    state->title_font = load_font(50);
+    state->normal_font = load_font(25);
+}
 
-#define try_sdl_nonneg(var, msg) try_sdl((var) < 0, msg)
+void load_textures(struct State *state) {
+    try_sdl_nonnull(
+        state->spritesheet = IMG_LoadTexture(state->rend, "spritesheet.png"),
+        "Failed to load \"spritesheet.png\"");
+    try_sdl_nonnull(state->button = IMG_LoadTexture(state->rend, "button.png"),
+                    "Failed to load \"button.png\"");
+}
 
-void init(struct SDLState *state) {
+void init(struct State *state) {
     try_sdl_nonneg(SDL_Init(SDL_INIT_VIDEO), "Failed to initialize SDL");
     try_sdl(IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG,
             "Failed to initialize SDL_image with PNG");
+    try_sdl(TTF_Init() == -1, "Failed to initialize SDL_ttf");
 
     try_sdl_nonnull(state->win = SDL_CreateWindow(
                         "Minesweeper2",
@@ -29,26 +37,29 @@ void init(struct SDLState *state) {
                         -1,
                         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC),
                     "Failed to initialize SDL_Renderer");
-    try_sdl_nonnull(
-        state->spritesheet = IMG_LoadTexture(state->rend, "spritesheet.png"),
-        "Failed to load \"spritesheet.png\"");
+    load_textures(state);
+    load_fonts(state);
+
+    state->play_again_btn =
+        create_button(state->win, state->button, -1, -1, 3, "Play Again");
 }
 
-void cleanup(struct SDLState state) {
+void cleanup(struct State state) {
     SDL_DestroyTexture(state.spritesheet);
+    SDL_DestroyTexture(state.button);
+
+    TTF_CloseFont(state.title_font);
+    TTF_CloseFont(state.normal_font);
 
     SDL_DestroyRenderer(state.rend);
     SDL_DestroyWindow(state.win);
+
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }
 
-void f_sdl_err(const char *msg) {
-    fprintf(stderr, "minesweeper2: %s: %s\n", msg, SDL_GetError());
-    exit(1);
-}
-
-void handle_events(bool *running, struct Map *map) {
+void handle_events(struct State state, bool *running, struct Map *map) {
     uint8_t x, y;
     SDL_Event e;
     bool flag = (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT]);
@@ -81,6 +92,9 @@ void handle_events(bool *running, struct Map *map) {
                     }
                     map_mine(map, x, y);
                 }
+            } else {
+                if (button_inside(state.play_again_btn, e.button.x, e.button.y))
+                    *map = create_map(map->cols, map->rows, map->mines);
             }
             break;
         default: break;
@@ -121,7 +135,8 @@ void find_tex_pos(struct Map map,
     }
 }
 
-void render(struct SDLState state, struct Map map) {
+void render(struct State state, struct Map map) {
+    SDL_SetWindowSize(state.win, map.cols * TILE_SIZE, map.rows * TILE_SIZE);
     try_sdl_nonneg(SDL_RenderClear(state.rend), "Failed to clear renderer");
 
     for (uint8_t i = 0; i < map.rows; i++) {
@@ -138,6 +153,28 @@ void render(struct SDLState state, struct Map map) {
                 SDL_RenderCopy(state.rend, state.spritesheet, &src, &dst),
                 "Failed to copy texture");
         }
+    }
+
+    if (map.status == MS_WIN || map.status == MS_LOSE) {
+        int w, h;
+        SDL_GetWindowSize(state.win, &w, &h);
+        SDL_Rect rect = {.x = (w - 400) / 2, .y = (h - 300) / 2, 400, 300};
+        SDL_SetRenderDrawColor(state.rend, 0, 0, 0, 127);
+        SDL_SetRenderDrawBlendMode(state.rend, SDL_BLENDMODE_BLEND);
+        SDL_RenderFillRect(state.rend, &rect);
+        SDL_SetRenderDrawColor(state.rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
+
+        render_text(state.win,
+                    state.rend,
+                    state.title_font,
+                    map.status == MS_WIN ? "You Win" : "You Lose",
+                    -1,
+                    (h - 250) / 2);
+        render_button(state.win,
+                      state.rend,
+                      state.button,
+                      state.normal_font,
+                      state.play_again_btn);
     }
 
     SDL_RenderPresent(state.rend);

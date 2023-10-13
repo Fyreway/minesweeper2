@@ -15,6 +15,9 @@ add_executable(minesweeper2 MACOSX_BUNDLE
     "src/tile.c"
     "src/map.c"
     "src/ui.c"
+    "src/button.c"
+    "src/text.c"
+    "src/util.c"
 )
 
 set(APPLE_GUI_BUNDLE_NAME Minesweeper2)
@@ -28,4 +31,4 @@ set_target_properties(minesweeper2 PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake/AppleInfo.plist"
 )
 
-target_link_libraries(minesweeper2 PRIVATE SDL2::SDL2 SDL2_image::SDL2_image)
+target_link_libraries(minesweeper2 PRIVATE SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf)
