@@ -5,7 +5,7 @@
 
 int main() {
     srand(time(NULL));
-    struct State state;
+    struct UIState state;
     struct Map map = create_map(30, 16, 99);
     init(&state);
 

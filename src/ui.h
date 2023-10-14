@@ -6,7 +6,7 @@
 #define TILE_SIZE   24
 #define SOURCE_SIZE 16
 
-struct State {
+struct UIState {
     SDL_Window *win;
     SDL_Renderer *rend;
 
@@ -18,10 +18,10 @@ struct State {
     struct Button play_again_btn;
 };
 
-void init(struct State *state);
-void cleanup(struct State state);
+void init(struct UIState *state);
+void cleanup(struct UIState state);
 
 enum EventStatus : uint8_t { E_NONE, E_QUIT, E_FLAG, E_MINE };
 
-void handle_events(struct State state, bool *running, struct Map *map);
-void render(struct State state, struct Map map);
+void handle_events(struct UIState state, bool *running, struct Map *map);
+void render(struct UIState state, struct Map map);
