@@ -10,6 +10,10 @@ find_package(SDL2_ttf REQUIRED CONFIG PATHS "." NO_DEFAULT_PATH)
 
 file(COPY Resources DESTINATION minesweeper2.app/Contents)
 
+set(APPLE_GUI_BUNDLE_NAME Minesweeper2)
+set_source_files_properties("Resources/minesweeper.icns" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+set(APPLE_GUI_ICON minesweeper)
+
 add_executable(minesweeper2 MACOSX_BUNDLE
     "src/main.c"
     "src/tile.c"
@@ -20,9 +24,8 @@ add_executable(minesweeper2 MACOSX_BUNDLE
     "src/button.c"
     "src/text.c"
     "src/util.c"
+    "Resources/minesweeper.icns"
 )
-
-set(APPLE_GUI_BUNDLE_NAME Minesweeper2)
 
 set_target_properties(minesweeper2 PROPERTIES
     BUNDLE ON
