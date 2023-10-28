@@ -96,15 +96,22 @@ void render(struct UIState ui_state, struct Map map) {
             }
         }
 
-        char time[5];
+        char time[11], flags[11];
 
-        snprintf(time, 4, "%u", map.seconds);
+        snprintf(time, 11, "Time: %u", map.seconds);
+        snprintf(flags, 11, "Flags: %u", map.flags);
 
         render_text(ui_state.win,
                     ui_state.rend,
                     ui_state.normal_font,
                     time,
                     15,
+                    15);
+        render_text(ui_state.win,
+                    ui_state.rend,
+                    ui_state.normal_font,
+                    flags,
+                    415,
                     15);
 
         if (map.status != MS_PLAY) render_end_menu(ui_state, map.status);

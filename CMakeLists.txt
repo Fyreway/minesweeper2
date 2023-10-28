@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 project(minesweeper2
-    VERSION "0.1.0"
+    VERSION "1.0.0"
     DESCRIPTION "The hit game Minesweeper. Now for a high school student!"
     LANGUAGES "C")
 
@@ -31,8 +31,8 @@ set_target_properties(minesweeper2 PROPERTIES
     BUNDLE ON
     MACOSX_BUNDLE_GUI_IDENTIFIER "com.fyreway.minesweeper2"
     MACOSX_BUNDLE_BUNDLE_NAME "Minesweeper2"
-    MACOSX_BUNDLE_BUNDLE_VERSION "0.1.0"
-    MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake/AppleInfo.plist"
 )
 
