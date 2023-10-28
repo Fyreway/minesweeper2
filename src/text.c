@@ -29,9 +29,13 @@ void render_text(SDL_Window *win,
     int w, h;
     int sw, sh;
     SDL_QueryTexture(tex, NULL, NULL, &w, &h);
-    SDL_GetWindowSize(win, &sw, &sh);
-    int x_ = x == -1 ? (sw - w) / 2 : x;
-    int y_ = y == -1 ? (sh - h) / 2 : y;
+    if (win == NULL && (x == -1 || y == -1)) return;
+    int x_ = x, y_ = y;
+    if (win != NULL) {
+        SDL_GetWindowSize(win, &sw, &sh);
+        x_ = x == -1 ? (sw - w) / 2 : x;
+        y_ = y == -1 ? (sh - h) / 2 : y;
+    }
     SDL_Rect rect = {x_, y_, w, h};
     SDL_RenderCopy(rend, tex, NULL, &rect);
     SDL_DestroyTexture(tex);

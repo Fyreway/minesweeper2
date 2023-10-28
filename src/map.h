@@ -2,14 +2,12 @@
 
 #include "tile.h"
 
-enum MapStatus { MS_PLAY, MS_WIN, MS_LOSE };
-
 struct Map {
     struct Tile **map;
     uint8_t cols, rows;
     uint8_t mines, flags;
     bool reveal, first_move;
-    enum MapStatus status;
+    enum MapStatus { MS_PLAY, MS_WIN, MS_LOSE } status;
 };
 
 struct Pair {

@@ -7,6 +7,7 @@
 
 void load_fonts(struct UIState *state) {
     state->title_font = load_font(50);
+    state->mid_font = load_font(40);
     state->normal_font = load_font(25);
 }
 
@@ -40,8 +41,43 @@ void init(struct UIState *state) {
     load_textures(state);
     load_fonts(state);
 
-    state->play_again_btn =
-        create_button(state->win, state->button, -1, -1, 3, "Play Again");
+    state->play_again_btn = create_button(state->win,
+                                          state->button,
+                                          state->normal_font,
+                                          -1,
+                                          250,
+                                          3,
+                                          "Play Again");
+    state->menu_btn = create_button(state->win,
+                                    state->button,
+                                    state->normal_font,
+                                    -1,
+                                    350,
+                                    3,
+                                    "Menu");
+    state->size0_btn = create_button(state->win,
+                                     state->button,
+                                     state->mid_font,
+                                     -1,
+                                     300,
+                                     5,
+                                     "Small");
+    state->size1_btn = create_button(state->win,
+                                     state->button,
+                                     state->mid_font,
+                                     -1,
+                                     400,
+                                     5,
+                                     "Medium");
+    state->size2_btn = create_button(state->win,
+                                     state->button,
+                                     state->mid_font,
+                                     -1,
+                                     500,
+                                     5,
+                                     "Large");
+
+    state->show_map = false;
 }
 
 void cleanup(struct UIState state) {

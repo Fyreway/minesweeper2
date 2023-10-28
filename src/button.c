@@ -4,13 +4,15 @@
 
 struct Button create_button(SDL_Window *win,
                             SDL_Texture *tex,
+                            TTF_Font *font,
                             int x,
                             int y,
                             int scale,
                             const char *text) {
     int w, h;
     SDL_QueryTexture(tex, NULL, NULL, &w, &h);
-    struct Button btn = {.w = w * scale, .h = h * scale, scale, text};
+    struct Button btn =
+        {.w = w * scale, .h = h * scale, scale, text, tex, font};
     update_button_pos(&btn, win, x, y);
     return btn;
 }
@@ -27,12 +29,8 @@ bool button_inside(struct Button btn, int mx, int my) {
            && my < (btn.y + btn.h);
 }
 
-void render_button(SDL_Window *win,
-                   SDL_Renderer *rend,
-                   SDL_Texture *tex,
-                   TTF_Font *font,
-                   struct Button btn) {
+void render_button(SDL_Renderer *rend, struct Button btn) {
     SDL_Rect rect = {.x = btn.x, .y = btn.y, .w = btn.w, .h = btn.h};
-    SDL_RenderCopy(rend, tex, NULL, &rect);
-    render_text(win, rend, font, btn.text, btn.x + 10, btn.y + 5);
+    SDL_RenderCopy(rend, btn.tex, NULL, &rect);
+    render_text(NULL, rend, btn.font, btn.text, btn.x + 10, btn.y + 5);
 }

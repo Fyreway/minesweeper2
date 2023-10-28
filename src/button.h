@@ -9,10 +9,13 @@ struct Button {
     int x, y, w, h;
     int scale;
     const char *text;
+    SDL_Texture *tex;
+    TTF_Font *font;
 };
 
 struct Button create_button(SDL_Window *win,
                             SDL_Texture *tex,
+                            TTF_Font *font,
                             int x,
                             int y,
                             int scale,
@@ -22,8 +25,4 @@ void update_button_pos(struct Button *btn, SDL_Window *win, int x_, int y_);
 
 bool button_inside(struct Button btn, int mx, int my);
 
-void render_button(SDL_Window *win,
-                   SDL_Renderer *rend,
-                   SDL_Texture *tex,
-                   TTF_Font *font,
-                   struct Button btn);
+void render_button(SDL_Renderer *rend, struct Button btn);

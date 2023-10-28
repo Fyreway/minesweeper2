@@ -14,7 +14,7 @@ struct Tile create_value(uint8_t value) {
                          .value = value & 0b00001111};
 }
 
-MineStatus tile_mine(struct Tile tile) {
+enum MineStatus tile_mine(struct Tile tile) {
     if (tile.mined)
         return M_MINED;
     else if (tile.flagged)
@@ -26,7 +26,7 @@ MineStatus tile_mine(struct Tile tile) {
     return M_OK;
 }
 
-FlagStatus tile_flag(struct Tile tile, uint8_t flags) {
+enum FlagStatus tile_flag(struct Tile tile, uint8_t flags) {
     if (tile.mined)
         return F_MINED;
     else if (tile.flagged)
