@@ -20,7 +20,8 @@ void load_textures(struct UIState *state) {
 }
 
 void init(struct UIState *state) {
-    try_sdl_nonneg(SDL_Init(SDL_INIT_VIDEO), "Failed to initialize SDL");
+    try_sdl_nonneg(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER),
+                   "Failed to initialize SDL");
     try_sdl(IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG,
             "Failed to initialize SDL_image with PNG");
     try_sdl(TTF_Init() == -1, "Failed to initialize SDL_ttf");

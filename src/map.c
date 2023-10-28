@@ -13,7 +13,10 @@ struct Map create_map(uint8_t cols, uint8_t rows, uint8_t mines) {
                         .flags = mines,
                         .reveal = false,
                         .first_move = true,
-                        .status = MS_PLAY};
+                        .status = MS_PLAY,
+                        .timer = 0,
+                        .timing = false,
+                        .seconds = 0};
 }
 
 void destroy_map(struct Map *map) {

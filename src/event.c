@@ -1,9 +1,19 @@
 #include "ui.h"
 
+uint32_t callback(uint32_t interval, void *param) {
+    struct Map *map = (struct Map *)param;
+    if (++map->seconds > 9999) {
+        map->status = MS_LOSE;
+        map->reveal = true;
+    }
+    return 1000;
+}
+
 void handle_events(struct UIState *state, bool *running, struct Map *map) {
     uint8_t x, y;
     SDL_Event e;
     bool flag = (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT]);
+    if (state->show_map && map->status != MS_PLAY) SDL_RemoveTimer(map->timer);
     while (SDL_PollEvent(&e)) {
         switch (e.type) {
         case SDL_QUIT: *running = 0; break;
@@ -33,6 +43,8 @@ void handle_events(struct UIState *state, bool *running, struct Map *map) {
                         if (map->first_move) {
                             generate_map(map, x, y);
                             map->first_move = false;
+                            map->timer =
+                                SDL_AddTimer(1000, callback, (void *)map);
                         }
                         map_mine(map, x, y);
                     }

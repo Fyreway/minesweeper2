@@ -96,6 +96,17 @@ void render(struct UIState ui_state, struct Map map) {
             }
         }
 
+        char time[5];
+
+        snprintf(time, 4, "%u", map.seconds);
+
+        render_text(ui_state.win,
+                    ui_state.rend,
+                    ui_state.normal_font,
+                    time,
+                    15,
+                    15);
+
         if (map.status != MS_PLAY) render_end_menu(ui_state, map.status);
     } else
         render_start_menu(ui_state);

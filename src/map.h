@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SDL2/SDL.h>
+
 #include "tile.h"
 
 struct Map {
@@ -8,6 +10,9 @@ struct Map {
     uint8_t mines, flags;
     bool reveal, first_move;
     enum MapStatus { MS_PLAY, MS_WIN, MS_LOSE } status;
+    SDL_TimerID timer;
+    bool timing;
+    uint16_t seconds;
 };
 
 struct Pair {
